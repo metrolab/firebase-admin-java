@@ -16,6 +16,8 @@
 
 package com.google.firebase.messaging;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
@@ -32,7 +34,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.internal.ApiClientUtils;
-import com.google.firebase.internal.Nullable;
 
 import java.io.IOException;
 import java.util.List;
@@ -63,10 +64,23 @@ final class InstanceIdClient {
   private final JsonFactory jsonFactory;
   private final HttpResponseInterceptor responseInterceptor;
 
-  InstanceIdClient(FirebaseApp app, @Nullable HttpResponseInterceptor responseInterceptor) {
-    this.requestFactory = ApiClientUtils.newAuthorizedRequestFactory(app);
-    this.jsonFactory = app.getOptions().getJsonFactory();
+  InstanceIdClient(HttpRequestFactory requestFactory, JsonFactory jsonFactory) {
+    this(requestFactory, jsonFactory, null);
+  }
+
+  InstanceIdClient(
+      HttpRequestFactory requestFactory,
+      JsonFactory jsonFactory,
+      HttpResponseInterceptor responseInterceptor) {
+    this.requestFactory = checkNotNull(requestFactory);
+    this.jsonFactory = checkNotNull(jsonFactory);
     this.responseInterceptor = responseInterceptor;
+  }
+
+  static InstanceIdClient fromApp(FirebaseApp app) {
+    return new InstanceIdClient(
+        ApiClientUtils.newAuthorizedRequestFactory(app),
+        app.getOptions().getJsonFactory());
   }
 
   TopicManagementResponse subscribeToTopic(

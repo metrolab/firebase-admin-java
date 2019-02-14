@@ -56,8 +56,8 @@ public class FirebaseMessaging {
   @VisibleForTesting
   FirebaseMessaging(FirebaseApp app, @Nullable HttpResponseInterceptor responseInterceptor) {
     this.app = checkNotNull(app, "app must not be null");
-    this.messagingClient = new FirebaseMessagingClient(app, responseInterceptor);
-    this.instanceIdClient = new InstanceIdClient(app, responseInterceptor);
+    this.messagingClient = FirebaseMessagingClient.fromApp(app);
+    this.instanceIdClient = InstanceIdClient.fromApp(app);
   }
 
   /**

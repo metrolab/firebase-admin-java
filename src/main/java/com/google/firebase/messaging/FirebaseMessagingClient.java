@@ -17,6 +17,7 @@
 package com.google.firebase.messaging;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.api.client.googleapis.batch.BatchCallback;
 import com.google.api.client.googleapis.batch.BatchRequest;
@@ -78,17 +79,32 @@ final class FirebaseMessagingClient {
   private final JsonFactory jsonFactory;
   private final HttpResponseInterceptor responseInterceptor;
 
-  FirebaseMessagingClient(FirebaseApp app, @Nullable HttpResponseInterceptor responseInterceptor) {
-    String projectId = ImplFirebaseTrampolines.getProjectId(app);
-    checkArgument(!Strings.isNullOrEmpty(projectId),
+  private FirebaseMessagingClient(Builder builder) {
+    checkArgument(!Strings.isNullOrEmpty(builder.projectId),
         "Project ID is required to access messaging service. Use a service account credential or "
             + "set the project ID explicitly via FirebaseOptions. Alternatively you can also "
             + "set the project ID via the GOOGLE_CLOUD_PROJECT environment variable.");
-    this.fcmSendUrl = String.format(FCM_URL, projectId);
-    this.requestFactory = ApiClientUtils.newAuthorizedRequestFactory(app);
-    this.childRequestFactory = ApiClientUtils.newUnauthorizedRequestFactory(app);
-    this.jsonFactory = app.getOptions().getJsonFactory();
-    this.responseInterceptor = responseInterceptor;
+    this.fcmSendUrl = String.format(FCM_URL, builder.projectId);
+    this.requestFactory = checkNotNull(builder.requestFactory);
+    this.childRequestFactory = checkNotNull(builder.childRequestFactory);
+    this.jsonFactory = checkNotNull(builder.jsonFactory);
+    this.responseInterceptor = builder.responseInterceptor;
+  }
+
+  String getFcmSendUrl() {
+    return fcmSendUrl;
+  }
+
+  HttpRequestFactory getRequestFactory() {
+    return requestFactory;
+  }
+
+  HttpRequestFactory getChildRequestFactory() {
+    return childRequestFactory;
+  }
+
+  JsonFactory getJsonFactory() {
+    return jsonFactory;
   }
 
   String send(Message message, boolean dryRun) throws FirebaseMessagingException {
@@ -186,7 +202,10 @@ final class FirebaseMessagingClient {
     return new HttpRequestInitializer(){
       @Override
       public void initialize(HttpRequest request) throws IOException {
-        requestFactory.getInitializer().initialize(request);
+        HttpRequestInitializer initializer = requestFactory.getInitializer();
+        if (initializer != null) {
+          initializer.initialize(request);
+        }
         request.setResponseInterceptor(responseInterceptor);
       }
     };
@@ -236,5 +255,58 @@ final class FirebaseMessagingClient {
     List<SendResponse> getResponses() {
       return this.responses.build();
     }
+  }
+
+  static Builder builder() {
+    return new Builder();
+  }
+
+  static class Builder {
+
+    private String projectId;
+    private HttpRequestFactory requestFactory;
+    private HttpRequestFactory childRequestFactory;
+    private JsonFactory jsonFactory;
+    private HttpResponseInterceptor responseInterceptor;
+
+    private Builder() { }
+
+    public Builder setProjectId(String projectId) {
+      this.projectId = projectId;
+      return this;
+    }
+
+    public Builder setRequestFactory(HttpRequestFactory requestFactory) {
+      this.requestFactory = requestFactory;
+      return this;
+    }
+
+    public Builder setChildRequestFactory(HttpRequestFactory childRequestFactory) {
+      this.childRequestFactory = childRequestFactory;
+      return this;
+    }
+
+    public Builder setJsonFactory(JsonFactory jsonFactory) {
+      this.jsonFactory = jsonFactory;
+      return this;
+    }
+
+    public Builder setResponseInterceptor(HttpResponseInterceptor responseInterceptor) {
+      this.responseInterceptor = responseInterceptor;
+      return this;
+    }
+
+    public FirebaseMessagingClient build() {
+      return new FirebaseMessagingClient(this);
+    }
+  }
+
+  static FirebaseMessagingClient fromApp(FirebaseApp app) {
+    return FirebaseMessagingClient.builder()
+        .setProjectId(ImplFirebaseTrampolines.getProjectId(app))
+        .setRequestFactory(ApiClientUtils.newAuthorizedRequestFactory(app))
+        .setChildRequestFactory(ApiClientUtils.newUnauthorizedRequestFactory(app))
+        .setJsonFactory(app.getOptions().getJsonFactory())
+        .build();
   }
 }
