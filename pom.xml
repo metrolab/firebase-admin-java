@@ -419,6 +419,12 @@
             <artifactId>netty-transport</artifactId>
             <version>${netty.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-handler-proxy</artifactId>
+            <version>${netty.version}</version>
+        </dependency>
+
         <!-- Test Dependencies -->
         <dependency>
             <groupId>org.mockito</groupId>
