@@ -54,8 +54,8 @@ public final class CustomHttpProxyHandler extends ProxyHandler {
     }
 
     public CustomHttpProxyHandler(SocketAddress proxyAddress,
-                            HttpHeaders headers,
-                            boolean ignoreDefaultPortsInConnectHostHeader) {
+                                  HttpHeaders headers,
+                                  boolean ignoreDefaultPortsInConnectHostHeader) {
         super(proxyAddress);
         username = null;
         password = null;
@@ -69,15 +69,15 @@ public final class CustomHttpProxyHandler extends ProxyHandler {
     }
 
     public CustomHttpProxyHandler(SocketAddress proxyAddress, String username, String password,
-                            HttpHeaders headers) {
+                                  HttpHeaders headers) {
         this(proxyAddress, username, password, headers, false);
     }
 
     public CustomHttpProxyHandler(SocketAddress proxyAddress,
-                            String username,
-                            String password,
-                            HttpHeaders headers,
-                            boolean ignoreDefaultPortsInConnectHostHeader) {
+                                  String username,
+                                  String password,
+                                  HttpHeaders headers,
+                                  boolean ignoreDefaultPortsInConnectHostHeader) {
         super(proxyAddress);
         if (username == null) {
             throw new NullPointerException("username");
@@ -107,7 +107,7 @@ public final class CustomHttpProxyHandler extends ProxyHandler {
 
     @Override
     public String authScheme() {
-        return authorization != null? AUTH_BASIC : AUTH_NONE;
+        return authorization != null ? AUTH_BASIC : AUTH_NONE;
     }
 
     public String username() {
