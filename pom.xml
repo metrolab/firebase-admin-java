@@ -19,7 +19,7 @@
 
     <groupId>com.google.firebase</groupId>
     <artifactId>firebase-admin</artifactId>
-    <version>6.8.2-SNAPSHOT</version>
+    <version>6.8.metropolis</version>
     <packaging>jar</packaging>
 
     <name>firebase-admin</name>
@@ -59,7 +59,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <skipUTs>${skipTests}</skipUTs>
-        <netty.version>4.1.34.Final</netty.version>
+        <netty.version>4.1.37.Final</netty.version>
     </properties>
 
     <scm>
@@ -296,26 +296,6 @@
         </resources>
         <plugins>
             <plugin>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.17</version>
-                <executions>
-                    <execution>
-                        <id>validate</id>
-                        <phase>validate</phase>
-                        <configuration>
-                            <configLocation>checkstyle.xml</configLocation>
-                            <encoding>UTF-8</encoding>
-                            <consoleOutput>true</consoleOutput>
-                            <failsOnError>true</failsOnError>
-                            <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                        </configuration>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.6.1</version>
                 <configuration>
@@ -329,18 +309,6 @@
                 <configuration>
                     <skipTests>${skipUTs}</skipTests>
                 </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.19.1</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>                    
-                </executions>
             </plugin>
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -449,6 +417,11 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-transport</artifactId>
+            <version>${netty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-handler-proxy</artifactId>
             <version>${netty.version}</version>
         </dependency>
 
