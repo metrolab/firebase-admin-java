@@ -40,252 +40,32 @@
             <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
-    <developers>
-        <developer>
-            <id>firebase</id>
-            <name>Firebase</name>
-            <url>https://firebase.google.com/</url>
-            <organization>Firebase</organization>
-            <organizationUrl>https://firebase.google.com/</organizationUrl>
-            <roles>
-                <role>architect</role>
-                <role>developer</role>
-            </roles>
-            <timezone>-8</timezone>
-        </developer>
-    </developers>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <skipUTs>${skipTests}</skipUTs>
         <netty.version>4.1.37.Final</netty.version>
     </properties>
 
     <scm>
-        <connection>scm:git:https://github.com/firebase/firebase-admin-java.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/firebase/firebase-admin-java.git</developerConnection>
-        <url>http://github.com/firebase/firebase-admin-java</url>
+        <connection>scm:git:https://github.com/metrolab/firebase-admin-java.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/metrolab/firebase-admin-java.git</developerConnection>
+        <url>http://github.com/metrolab/firebase-admin-java</url>
         <tag>HEAD</tag>
     </scm>
 
     <distributionManagement>
+        <repository>
+            <id>central</id>
+            <name>artifactory-01-releases</name>
+            <url>http://artifactory.metrolab/artifactory/libs-release-local</url>
+        </repository>
         <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <id>snapshots</id>
+            <name>artifactory-01-snapshots</name>
+            <url>http://artifactory.metrolab/artifactory/libs-snapshot-local</url>
         </snapshotRepository>
     </distributionManagement>
-
-    <profiles>
-        <profile>
-            <!-- Disable Doclint on Java 8 and higher -->
-            <id>disable-java8-doclint</id>
-            <activation>
-                <jdk>[1.8,)</jdk>
-            </activation>
-            <properties>
-                <additionalparam>-Xdoclint:none</additionalparam>
-            </properties>
-        </profile>
-        <profile>
-            <id>devsite-apidocs</id>
-            <activation>
-                <property>
-                    <name>devsite.template</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <!-- Generate API docs using Doclava for the developer site -->
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>site</phase>
-                                <goals>
-                                    <goal>aggregate</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <docletArtifact>
-                                <groupId>com.google.doclava</groupId>
-                                <artifactId>doclava</artifactId>
-                                <version>1.0.6</version>
-                            </docletArtifact>
-                            <doclet>com.google.doclava.Doclava</doclet>
-                            <bootclasspath>${sun.boot.class.path}</bootclasspath>
-                            <additionalDependencies>
-                                <additionalDependency>
-                                    <groupId>com.google.j2objc</groupId>
-                                    <artifactId>j2objc-annotations</artifactId>
-                                    <version>1.3</version>
-                                </additionalDependency>
-                            </additionalDependencies>
-                            <additionalparam>
-                                -hdf book.path /_book.yaml
-                                -hdf project.path /_project.yaml
-                                -hdf devsite.path /docs/reference/admin/java/reference/
-                                -d ${project.build.directory}/apidocs
-                                -templatedir ${devsite.template}
-                                -toroot /docs/reference/admin/java/reference/
-                                -yaml _toc.yaml
-                                -warning 101
-                            </additionalparam>
-                            <useStandardDocletOptions>false</useStandardDocletOptions>
-                            <additionalJOption>-J-Xmx1024m</additionalJOption>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <!-- Update relative paths in generated API docs -->
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>1.7</version>
-                        <executions>
-                            <execution>
-                                <phase>site</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                                <configuration>
-                                    <target>
-                                        <echo message="Updating relative links in API docs" />
-                                        <replace dir="${project.build.directory}/apidocs" token="href=&quot;com" value="href=&quot;/docs/reference/admin/java/reference/com" />
-                                        <copy file="${project.build.directory}/apidocs/assets/_toc.yaml" todir="${project.build.directory}/apidocs/reference" />
-                                    </target>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>release</id>
-            <properties>
-                <!-- Prevent executing integration tests twice during a release -->
-                <skipITs>true</skipITs>
-            </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <docletArtifact>
-                                <groupId>com.google.doclava</groupId>
-                                <artifactId>doclava</artifactId>
-                                <version>1.0.6</version>
-                            </docletArtifact>
-                            <doclet>com.google.doclava.Doclava</doclet>
-                            <bootclasspath>${sun.boot.class.path}</bootclasspath>
-                            <additionalDependencies>
-                                <additionalDependency>
-                                    <groupId>com.google.j2objc</groupId>
-                                    <artifactId>j2objc-annotations</artifactId>
-                                    <version>1.3</version>
-                                </additionalDependency>
-                            </additionalDependencies>
-                            <additionalparam>
-                                -warning 101
-                            </additionalparam>
-                            <useStandardDocletOptions>false</useStandardDocletOptions>
-                            <additionalJOption>-J-Xmx1024m</additionalJOption>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>2.2.1</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar-no-fork</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.5</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>code-coverage</id>
-            <activation>
-                <property>
-                    <name>jacoco</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.jacoco</groupId>
-                        <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.7.9</version>
-                        <executions>
-                            <execution>
-                                <id>pre-unit-test</id>
-                                <goals>
-                                    <goal>prepare-agent</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>post-unit-test</id>
-                                <phase>test</phase>
-                                <goals>
-                                    <goal>report</goal>
-                                </goals>
-                                <configuration>
-                                    <!-- Sets the path to the file which contains the execution data. -->
-                                    <dataFile>target/jacoco.exec</dataFile>
-                                    <!-- Sets the output directory for the code coverage report. -->
-                                    <outputDirectory>target/jacoco-ut</outputDirectory>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>1.6.0</version>
-                        <executions>
-                            <execution>
-                                <phase>test</phase>
-                                <goals>
-                                    <goal>java</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <mainClass>com.google.firebase.CodeCoverageReporter</mainClass>
-                            <arguments>
-                                <argument>target/jacoco-ut/jacoco.csv</argument>
-                            </arguments>
-                            <classpathScope>test</classpathScope>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 
     <build>
         <resources>
@@ -306,9 +86,6 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.19.1</version>
-                <configuration>
-                    <skipTests>${skipUTs}</skipTests>
-                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -324,36 +101,9 @@
                     <goals>deploy</goals>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.7</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>false</autoReleaseAfterClose>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
-    <reporting>
-        <plugins>
-            <plugin>
-                <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>2.9</version>
-                <reportSets>
-                    <reportSet>
-                        <configuration>
-                            <!-- Disable additional Maven reports, since we do not use them. -->
-                            <skip>true</skip>
-                        </configuration>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-        </plugins>
-    </reporting>
 
     <dependencies>
         <!-- Google Cloud Platform dependencies -->
