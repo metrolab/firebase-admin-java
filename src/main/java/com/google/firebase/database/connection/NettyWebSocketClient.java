@@ -38,7 +38,7 @@ class NettyWebSocketClient implements WebsocketConnection.WSClient {
 
     private static final int DEFAULT_WSS_PORT = 443;
     private static final String PROXY_HOST = System.getProperty("https.proxyHost");
-    private static final int PROXY_PORT = Integer.parseInt(System.getProperty("https.proxyPort"));
+    private static final int PROXY_PORT = Integer.parseInt(System.getProperty("https.proxyPort","80"));
     private static final Boolean PROXY_ENABLED = Boolean.parseBoolean(System.getProperty("com.google.api.client.should_use_proxy", "false"));
     public static final String PROXY_USER = System.getProperty("https.proxyUser");
     public static final String PROXY_PASS = System.getProperty("https.proxyPassword");
