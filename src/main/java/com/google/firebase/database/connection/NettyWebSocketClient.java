@@ -37,6 +37,12 @@ import static com.google.common.base.Preconditions.*;
 class NettyWebSocketClient implements WebsocketConnection.WSClient {
 
     private static final int DEFAULT_WSS_PORT = 443;
+    private static final String PROXY_HOST = System.getProperty("https.proxyHost");
+    private static final int PROXY_PORT = Integer.parseInt(System.getProperty("https.proxyPort"));
+    private static final Boolean PROXY_ENABLED = Boolean.parseBoolean(System.getProperty("com.google.api.client.should_use_proxy", "false"));
+    public static final String PROXY_USER = System.getProperty("https.proxyUser");
+    public static final String PROXY_PASS = System.getProperty("https.proxyPassword");
+
 
     private final URI uri;
     private final WebsocketConnection.WSClientEventHandler eventHandler;
@@ -74,13 +80,9 @@ class NettyWebSocketClient implements WebsocketConnection.WSClient {
                         @Override
                         protected void initChannel(SocketChannel ch) {
                             ChannelPipeline p = ch.pipeline();
-                            if (shouldUseProxy()) {
-                                String proxyHost = System.getProperty("https.proxyHost");
-                                int proxyPort = Integer.parseInt(System.getProperty("https.proxyPort"));
-                                InetSocketAddress proxySocket = new InetSocketAddress(proxyHost, proxyPort);
-                                p.addFirst(new CustomHttpProxyHandler(proxySocket,
-                                        System.getProperty("https.proxyUser"),
-                                        System.getProperty("https.proxyPassword")));
+                            if (PROXY_ENABLED) {
+                                InetSocketAddress proxySocket = new InetSocketAddress(PROXY_HOST, PROXY_PORT);
+                                p.addFirst(new CustomHttpProxyHandler(proxySocket, PROXY_USER, PROXY_PASS));
                             }
                             p.addLast(sslContext.newHandler(ch.alloc(), uri.getHost(), port));
                             p.addLast(new HttpClientCodec(), new HttpObjectAggregator(32 * 1024), channelHandler);
@@ -102,10 +104,6 @@ class NettyWebSocketClient implements WebsocketConnection.WSClient {
         } catch (Exception e) {
             eventHandler.onError(e);
         }
-    }
-
-    private boolean shouldUseProxy() {
-        return Boolean.parseBoolean(System.getProperty("com.google.api.client.should_use_proxy", "false"));
     }
 
     @Override
